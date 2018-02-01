@@ -3,6 +3,7 @@
     <params>
         <param field="Address" label="IP Address" width="200px" required="true" default="192.168.1.86"/>
         <param field="Port" label="Port" width="50px" required="true" default="54321"/>
+        <param field="Mode2" label="Poll Period (min)" width="75px" required="true" default="2"/>
         <param field="Mode6" label="Debug" width="75px">
             <options>
                 <option label="True" value="Debug"/>
@@ -12,7 +13,7 @@
     </params>
 </plugin>
 """
-# Removed Domoticz.Log commands
+# Added Poll Period
 
 import Domoticz
 from xiaomiaqi import xiaomiaqi
@@ -21,7 +22,8 @@ import json
 class BasePlugin:
 
     def __init__(self):
-        #self.var = 123
+        self.pollPeriod = 0
+        self.pollCount = 0
         return
 
     def onStart(self):
@@ -35,7 +37,9 @@ class BasePlugin:
         Domoticz.Debug("Device created.")
         DumpConfigToLog()
            
-        Domoticz.Heartbeat(30)
+        self.pollPeriod = 6 * int(Parameters["Mode2"])
+        self.pollCount = self.pollPeriod - 1
+        Domoticz.Heartbeat(10)
 
     def onStop(self):
         Domoticz.Debug("onStop called")
@@ -59,15 +63,19 @@ class BasePlugin:
         self.isConnected = False 
 
     def onHeartbeat(self):
-        Domoticz.Debug("onHeartbeat called")
-        xiaomiapi = xiaomiaqi(Parameters['Address'],Parameters['Port'])
-        xiaomiapi.request_hello()
-        aa = xiaomiapi.request_info()
-        Domoticz.Log(aa)
-        receiveddata = json.loads(aa)
-        aqi = receiveddata['result'][2]
-        battery = receiveddata['result'][3]
-        UpdateDevice(1,aqi,'',battery)
+        Domoticz.Debug("onHeartBeat called:"+str(self.pollCount)+"/"+str(self.pollPeriod))
+        if self.pollCount >= self.pollPeriod:
+            xiaomiapi = xiaomiaqi(Parameters['Address'],Parameters['Port'])
+            xiaomiapi.request_hello()
+            aa = xiaomiapi.request_info()
+            Domoticz.Log(aa)
+            receiveddata = json.loads(aa)
+            aqi = receiveddata['result'][2]
+            battery = receiveddata['result'][3]
+            UpdateDevice(1,aqi,'',battery)
+            self.pollCount = 0 #Reset Pollcount
+        else:
+            self.pollCount += 1
 
 
 global _plugin
