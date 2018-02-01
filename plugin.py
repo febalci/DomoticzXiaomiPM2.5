@@ -68,10 +68,11 @@ class BasePlugin:
             xiaomiapi = xiaomiaqi(Parameters['Address'],Parameters['Port'])
             xiaomiapi.request_hello()
             aa = xiaomiapi.request_info()
-            Domoticz.Log(aa)
+            Domoticz.Debug(aa)
             receiveddata = json.loads(aa)
             aqi = receiveddata['result'][2]
             battery = receiveddata['result'][3]
+            Domoticz.Log('Miio PM2.5: ' + str(aqi))
             UpdateDevice(1,aqi,'',battery)
             self.pollCount = 0 #Reset Pollcount
         else:
