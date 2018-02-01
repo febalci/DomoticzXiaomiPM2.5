@@ -66,14 +66,14 @@ class BasePlugin:
         Domoticz.Debug("onHeartBeat called:"+str(self.pollCount)+"/"+str(self.pollPeriod))
         if self.pollCount >= self.pollPeriod:
             xiaomiapi = xiaomiaqi(Parameters['Address'],Parameters['Port'])
-            xiaomiapi.request_hello()
-            aa = xiaomiapi.request_info()
-            Domoticz.Debug(aa)
-            receiveddata = json.loads(aa)
-            aqi = receiveddata['result'][2]
-            battery = receiveddata['result'][3]
-            Domoticz.Log('Miio PM2.5: ' + str(aqi))
-            UpdateDevice(1,aqi,'',battery)
+            if xiaomiapi.request_hello():
+                aa = xiaomiapi.request_info()
+                Domoticz.Debug(aa)
+                receiveddata = json.loads(aa)
+                aqi = receiveddata['result'][2]
+                battery = receiveddata['result'][3]
+                Domoticz.Log('Miio PM2.5: ' + str(aqi))
+                UpdateDevice(1,aqi,'',battery)
             self.pollCount = 0 #Reset Pollcount
         else:
             self.pollCount += 1

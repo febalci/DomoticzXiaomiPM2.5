@@ -31,8 +31,9 @@ class xiaomiaqi:
         self.port = int(port)
         try:
             self.s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        except socket.error:
-            Domoticz.Log('Socket Error!')      
+            self.s.settimeout(1)
+        except socket.error as msg:
+            Domoticz.Debug ('Error Code: ' + str(msg))
         return
 
     def request_hello(self):
@@ -42,7 +43,12 @@ class xiaomiaqi:
             self.s.sendto(self.hellopackage, (self.host, self.port))
          
             # receive data from client (data, addr)
-            d = self.s.recvfrom(1024)
+            try:
+                d = self.s.recvfrom(1024)
+            except socket.error as msg:
+                Domoticz.Debug ('Error Code: ' + str(msg))
+                Domoticz.Debug ('Is the Device On??')
+                return False
             reply = d[0]
             addr = d[1]
          
@@ -56,6 +62,7 @@ class xiaomiaqi:
             Domoticz.Debug('Key='+str(self.m_key))
             self.m_iv = self.md5(self.m_key+self.token)
             Domoticz.Debug('iv='+str(self.m_iv))
+            return True
      
         except socket.error as msg:
             Domoticz.Debug ('Error Code : ' + str(msg[0]) + ' Message ' + msg[1])
