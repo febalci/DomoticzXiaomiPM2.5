@@ -1,5 +1,5 @@
 """
-<plugin key="XiaomiPM" name="Xiaomi PM2.5 Sensor" author="febalci" version="1.0.0">
+<plugin key="XiaomiPM" name="Xiaomi PM2.5 Sensor" author="febalci" version="1.0.1">
     <params>
         <param field="Address" label="IP Address" width="200px" required="true" default="192.168.1.86"/>
         <param field="Port" label="Port" width="50px" required="true" default="54321"/>
