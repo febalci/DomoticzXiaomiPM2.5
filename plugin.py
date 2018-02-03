@@ -73,7 +73,8 @@ class BasePlugin:
                 aqi = receiveddata['result'][2]
                 battery = receiveddata['result'][3]
                 Domoticz.Log('Miio PM2.5: ' + str(aqi))
-                UpdateDevice(1,aqi,'',battery)
+                if aqi!= None: #Timeout for init when the device becomes on
+                    UpdateDevice(1,aqi,'',battery)
             self.pollCount = 0 #Reset Pollcount
         else:
             self.pollCount += 1
